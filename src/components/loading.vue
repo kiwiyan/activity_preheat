@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="load-wrap">
         <div>loading... {{percent}}%</div>
     </div>
 </template>
@@ -10,6 +10,10 @@
     }
 </script>
 
-<style scoped>
-
+<style scoped lang="scss">
+    .load-wrap {
+        width: 100%;
+        height: 100%;
+        
+    }
 </style>

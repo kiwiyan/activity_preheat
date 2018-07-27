@@ -1,15 +1,18 @@
 <template>
-    <div id="app">
-        <loading :percent="loadPercent" v-if="!loadFinished"></loading>
-        <router-view v-if="loadFinished" />
+    <div id="app" class="app-wrap">
+        <loading :percent="loadPercent" v-if="loadPercent < 100"></loading>
+        <router-view v-if="loadPercent >= 100" class="router-wrap" />
     </div>
 </template>
 
 <script>
 
-import load from "apreload";
+// import load from "apreload";
 import loading from './components/loading.vue'
 import imglists from "./util/imglist.js";
+
+// import Preload from 'preload' 
+import createjs from 'preload-js';
 
 export default {
     name: "App",
@@ -20,7 +23,7 @@ export default {
             loadFinished: false
         }
     },
-    created() {
+    createdOld() {
         let that = this;
         let imgPathLists = imglists.map(file => {
             return `/static/img/${file}`;
@@ -41,17 +44,37 @@ export default {
             .catch(err => {
                 console.log('加载失败：', err);
             })
+    },
+    created() {
+        let sourcePathLists = imglists.map(file => {
+            return `/static/img/${file}`;
+        });
+
+        let curLoadedNum = 0;
+
+        var queue = new createjs.LoadQueue(false);
+
+        // 加载图片
+        sourcePathLists.forEach(file => {
+            queue.loadFile(file);
+        });
+
+        queue.on('complete', () => {
+            console.log('ok!!')
+        });
+        queue.on('progress', (data) => {
+            let percent = Math.floor(data.loaded * 100);
+            this.loadPercent = percent;
+            console.log('pro:', percent)
+        });
     }
 };
 </script>
 
 <style lang="scss">
-#app {
-    font-family: "Avenir", Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
-}
+    .app-wrap, .router-wrap {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
 </style>
